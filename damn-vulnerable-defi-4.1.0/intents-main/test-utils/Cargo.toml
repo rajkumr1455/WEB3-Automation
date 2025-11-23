@@ -1,0 +1,21 @@
+[package]
+name = "defuse-test-utils"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+defuse-core.workspace = true
+defuse-randomness.workspace = true
+
+arbitrary_with.workspace = true
+derive_more = { workspace = true, features = ["full"] }
+near-account-id.workspace = true
+hex.workspace = true
+near-sdk.workspace = true
+rand_chacha.workspace = true
+rstest.workspace = true

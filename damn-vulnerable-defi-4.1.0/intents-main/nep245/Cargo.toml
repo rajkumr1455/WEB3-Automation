@@ -1,0 +1,13 @@
+[package]
+name = "defuse-nep245"
+edition.workspace = true
+version.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+
+[dependencies]
+derive_more = { workspace = true, features = ["from"] }
+near-sdk.workspace = true
+
+[lints]
+workspace = true

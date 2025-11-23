@@ -1,0 +1,223 @@
+2025-11-23 22:47:05,187 - src.knowledge.vector_store - WARNING - ChromaDB or LangChain OpenAI not found. Using Mock VectorStore.
+2025-11-23 22:47:05,483 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.24.168.51:5000
+2025-11-23 22:47:05,483 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-11-23 22:47:05,484 - werkzeug - INFO -  * Restarting with stat
+2025-11-23 22:47:08,301 - src.knowledge.vector_store - WARNING - ChromaDB or LangChain OpenAI not found. Using Mock VectorStore.
+2025-11-23 22:47:08,564 - werkzeug - WARNING -  * Debugger is active!
+2025-11-23 22:47:08,567 - werkzeug - INFO -  * Debugger PIN: 134-563-157
+2025-11-23 22:47:14,446 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:47:14] "GET /stats HTTP/1.1" 200 -
+2025-11-23 22:47:44,132 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:47:44] "GET /stats HTTP/1.1" 200 -
+2025-11-23 22:48:14,444 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:48:14] "GET /stats HTTP/1.1" 200 -
+2025-11-23 22:48:44,134 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:48:44] "GET /stats HTTP/1.1" 200 -
+2025-11-23 22:49:14,428 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:49:14] "GET /stats HTTP/1.1" 200 -
+2025-11-23 22:49:32,877 - src.knowledge.vector_store - WARNING - ChromaDB or LangChain OpenAI not found. Using Mock VectorStore.
+2025-11-23 22:49:33,152 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.24.168.51:5000
+2025-11-23 22:49:33,152 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-11-23 22:49:33,153 - werkzeug - INFO -  * Restarting with stat
+2025-11-23 22:49:36,047 - src.knowledge.vector_store - WARNING - ChromaDB or LangChain OpenAI not found. Using Mock VectorStore.
+2025-11-23 22:49:36,300 - werkzeug - WARNING -  * Debugger is active!
+2025-11-23 22:49:36,302 - werkzeug - INFO -  * Debugger PIN: 134-563-157
+2025-11-23 22:49:41,306 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:49:41] "GET / HTTP/1.1" 200 -
+2025-11-23 22:49:41,602 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:49:41] "GET /stats HTTP/1.1" 200 -
+2025-11-23 22:49:48,031 - __main__ - INFO - [scan_1] Starting Etherscan scan for 0x00b174d66adA7d63789087F50A9b9e0e48446dc1  on bsc
+2025-11-23 22:49:48,032 - src.integrations.etherscan_api - INFO - Initialized BscScan API for bsc
+2025-11-23 22:49:48,032 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:49:48] "POST /scan/etherscan HTTP/1.1" 200 -
+2025-11-23 22:49:49,038 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:49:49] "GET /scan/status/scan_1 HTTP/1.1" 200 -
+2025-11-23 22:49:50,340 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:49:50] "GET /scan/status/scan_1 HTTP/1.1" 200 -
+2025-11-23 22:49:51,037 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:49:51] "GET /scan/status/scan_1 HTTP/1.1" 200 -
+2025-11-23 22:49:51,732 - src.integrations.etherscan_api - WARNING - Contract not verified or not found on BscScan: 0x00b174d66adA7d63789087F50A9b9e0e48446dc1 
+2025-11-23 22:49:51,733 - __main__ - ERROR - [scan_1] Etherscan scan failed: Contract not verified on Bsc
+Traceback (most recent call last):
+  File "C:\Users\patel\Desktop\web3_hunter\web_ui\app.py", line 261, in run_etherscan_scan
+    raise Exception(f"Contract not verified on {chain.capitalize()}")
+Exception: Contract not verified on Bsc
+2025-11-23 22:49:52,338 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:49:52] "GET /scan/status/scan_1 HTTP/1.1" 200 -
+2025-11-23 22:50:11,327 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:50:11] "GET /stats HTTP/1.1" 200 -
+2025-11-23 22:50:41,626 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:50:41] "GET /stats HTTP/1.1" 200 -
+2025-11-23 22:51:11,322 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:51:11] "GET /stats HTTP/1.1" 200 -
+2025-11-23 22:51:41,623 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:51:41] "GET /stats HTTP/1.1" 200 -
+2025-11-23 22:52:11,318 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:52:11] "GET /stats HTTP/1.1" 200 -
+2025-11-23 22:52:41,619 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:52:41] "GET /stats HTTP/1.1" 200 -
+2025-11-23 22:53:11,316 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:53:11] "GET /stats HTTP/1.1" 200 -
+2025-11-23 22:53:41,618 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:53:41] "GET /stats HTTP/1.1" 200 -
+2025-11-23 22:54:11,319 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:54:11] "GET /stats HTTP/1.1" 200 -
+2025-11-23 22:54:41,622 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:54:41] "GET /stats HTTP/1.1" 200 -
+2025-11-23 22:55:07,684 - src.knowledge.vector_store - WARNING - ChromaDB or LangChain OpenAI not found. Using Mock VectorStore.
+2025-11-23 22:55:07,962 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.24.168.51:5000
+2025-11-23 22:55:07,962 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-11-23 22:55:07,963 - werkzeug - INFO -  * Restarting with stat
+2025-11-23 22:55:10,854 - src.knowledge.vector_store - WARNING - ChromaDB or LangChain OpenAI not found. Using Mock VectorStore.
+2025-11-23 22:55:11,118 - werkzeug - WARNING -  * Debugger is active!
+2025-11-23 22:55:11,121 - werkzeug - INFO -  * Debugger PIN: 134-563-157
+2025-11-23 22:55:11,316 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:55:11] "GET /stats HTTP/1.1" 200 -
+2025-11-23 22:55:16,038 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:55:16] "GET / HTTP/1.1" 200 -
+2025-11-23 22:55:16,053 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:55:16] "GET /stats HTTP/1.1" 200 -
+2025-11-23 22:55:19,399 - __main__ - INFO - [scan_2] Starting Etherscan scan for 0x00b174d66adA7d63789087F50A9b9e0e48446dc1  on ethereum
+2025-11-23 22:55:19,399 - src.integrations.etherscan_api - INFO - Initialized Etherscan API for ethereum
+2025-11-23 22:55:19,401 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:55:19] "POST /scan/etherscan HTTP/1.1" 200 -
+2025-11-23 22:55:20,719 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:55:20] "GET /scan/status/scan_2 HTTP/1.1" 200 -
+2025-11-23 22:55:21,197 - src.integrations.etherscan_api - WARNING - Contract not verified or not found on Etherscan: 0x00b174d66adA7d63789087F50A9b9e0e48446dc1 
+2025-11-23 22:55:21,199 - __main__ - ERROR - [scan_2] Etherscan scan failed: Contract not verified on Ethereum
+Traceback (most recent call last):
+  File "C:\Users\patel\Desktop\web3_hunter\web_ui\app.py", line 261, in run_etherscan_scan
+    raise Exception(f"Contract not verified on {chain.capitalize()}")
+Exception: Contract not verified on Ethereum
+2025-11-23 22:55:21,404 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:55:21] "GET /scan/status/scan_2 HTTP/1.1" 200 -
+2025-11-23 22:55:46,375 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:55:46] "GET /stats HTTP/1.1" 200 -
+2025-11-23 22:56:16,053 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:56:16] "GET /stats HTTP/1.1" 200 -
+2025-11-23 22:56:46,373 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:56:46] "GET /stats HTTP/1.1" 200 -
+2025-11-23 22:57:16,056 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:57:16] "GET /stats HTTP/1.1" 200 -
+2025-11-23 22:57:46,369 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:57:46] "GET /stats HTTP/1.1" 200 -
+2025-11-23 22:58:16,053 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:58:16] "GET /stats HTTP/1.1" 200 -
+2025-11-23 22:58:46,359 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:58:46] "GET /stats HTTP/1.1" 200 -
+2025-11-23 22:59:16,050 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:59:16] "GET /stats HTTP/1.1" 200 -
+2025-11-23 22:59:46,357 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 22:59:46] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:00:16,050 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:00:16] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:00:46,357 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:00:46] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:01:16,050 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:01:16] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:01:42,162 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:01:42] "GET / HTTP/1.1" 200 -
+2025-11-23 23:01:42,179 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:01:42] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:01:50,937 - __main__ - INFO - [scan_3] Starting Etherscan scan for 0x00b174d66adA7d63789087F50A9b9e0e48446dc1  on bsc
+2025-11-23 23:01:50,937 - src.integrations.etherscan_api - INFO - Initialized BscScan API for bsc
+2025-11-23 23:01:50,937 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:01:50] "POST /scan/etherscan HTTP/1.1" 200 -
+2025-11-23 23:01:52,249 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:01:52] "GET /scan/status/scan_3 HTTP/1.1" 200 -
+2025-11-23 23:01:52,478 - src.integrations.etherscan_api - WARNING - Contract not verified or not found on BscScan: 0x00b174d66adA7d63789087F50A9b9e0e48446dc1 
+2025-11-23 23:01:52,481 - __main__ - ERROR - [scan_3] Etherscan scan failed: Contract not verified on Bsc
+Traceback (most recent call last):
+  File "C:\Users\patel\Desktop\web3_hunter\web_ui\app.py", line 261, in run_etherscan_scan
+    raise Exception(f"Contract not verified on {chain.capitalize()}")
+Exception: Contract not verified on Bsc
+2025-11-23 23:01:52,960 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:01:52] "GET /scan/status/scan_3 HTTP/1.1" 200 -
+2025-11-23 23:02:12,492 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:02:12] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:02:42,184 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:02:42] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:03:12,483 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:03:12] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:03:42,179 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:03:42] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:04:12,485 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:04:12] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:04:42,178 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:04:42] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:05:12,480 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:05:12] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:05:42,176 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:05:42] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:06:12,478 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:06:12] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:06:42,176 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:06:42] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:07:12,478 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:07:12] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:07:42,173 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:07:42] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:08:12,477 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:08:12] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:08:42,173 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:08:42] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:09:12,479 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:09:12] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:09:42,174 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:09:42] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:09:45,818 - werkzeug - INFO -  * Detected change in 'C:\\Users\\patel\\Desktop\\web3_hunter\\src\\orchestration\\hunter_graph.py', reloading
+2025-11-23 23:09:46,456 - werkzeug - INFO -  * Restarting with stat
+2025-11-23 23:09:53,024 - src.knowledge.vector_store - WARNING - ChromaDB or LangChain OpenAI not found. Using Mock VectorStore.
+2025-11-23 23:09:53,321 - werkzeug - WARNING -  * Debugger is active!
+2025-11-23 23:09:53,327 - werkzeug - INFO -  * Debugger PIN: 134-563-157
+2025-11-23 23:10:04,788 - werkzeug - INFO -  * Detected change in 'C:\\Users\\patel\\Desktop\\web3_hunter\\web_ui\\app.py', reloading
+2025-11-23 23:10:05,461 - werkzeug - INFO -  * Restarting with stat
+2025-11-23 23:10:12,217 - src.knowledge.vector_store - WARNING - ChromaDB or LangChain OpenAI not found. Using Mock VectorStore.
+2025-11-23 23:10:12,531 - werkzeug - WARNING -  * Debugger is active!
+2025-11-23 23:10:12,535 - werkzeug - INFO -  * Debugger PIN: 134-563-157
+2025-11-23 23:10:15,199 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:10:15] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:10:42,175 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:10:42] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:11:12,481 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:11:12] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:11:42,176 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:11:42] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:12:12,480 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:12:12] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:12:42,172 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:12:42] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:13:12,474 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:13:12] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:13:42,170 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:13:42] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:13:45,822 - werkzeug - INFO -  * Detected change in 'C:\\Users\\patel\\Desktop\\web3_hunter\\src\\analysis\\slither_runner.py', reloading
+2025-11-23 23:13:46,481 - werkzeug - INFO -  * Restarting with stat
+2025-11-23 23:13:53,153 - src.knowledge.vector_store - WARNING - ChromaDB or LangChain OpenAI not found. Using Mock VectorStore.
+2025-11-23 23:13:53,451 - werkzeug - WARNING -  * Debugger is active!
+2025-11-23 23:13:53,453 - werkzeug - INFO -  * Debugger PIN: 134-563-157
+2025-11-23 23:14:12,476 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:14:12] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:14:42,173 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:14:42] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:15:12,473 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:15:12] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:15:42,169 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:15:42] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:15:49,698 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:15:49] "GET / HTTP/1.1" 200 -
+2025-11-23 23:15:49,724 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:15:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:15:51,905 - src.knowledge.vector_store - WARNING - ChromaDB or LangChain OpenAI not found. Using Mock VectorStore.
+2025-11-23 23:15:52,212 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.24.168.51:5000
+2025-11-23 23:15:52,212 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-11-23 23:15:52,216 - werkzeug - INFO -  * Restarting with stat
+2025-11-23 23:15:58,497 - src.knowledge.vector_store - WARNING - ChromaDB or LangChain OpenAI not found. Using Mock VectorStore.
+2025-11-23 23:15:58,789 - werkzeug - WARNING -  * Debugger is active!
+2025-11-23 23:15:58,794 - werkzeug - INFO -  * Debugger PIN: 134-563-157
+2025-11-23 23:16:08,128 - __main__ - INFO - [scan_1] Starting Etherscan scan for 0x00b174d66adA7d63789087F50A9b9e0e48446dc1  on bsc
+2025-11-23 23:16:08,128 - src.integrations.etherscan_api - INFO - Initialized BscScan API for bsc
+2025-11-23 23:16:08,131 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:16:08] "POST /scan/etherscan HTTP/1.1" 200 -
+2025-11-23 23:16:09,454 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:16:09] "GET /scan/status/scan_1 HTTP/1.1" 200 -
+2025-11-23 23:16:09,981 - src.integrations.etherscan_api - WARNING - Contract not verified or not found on BscScan: 0x00b174d66adA7d63789087F50A9b9e0e48446dc1 
+2025-11-23 23:16:09,984 - __main__ - ERROR - [scan_1] Etherscan scan failed: Contract not verified on Bsc
+Traceback (most recent call last):
+  File "C:\Users\patel\Desktop\web3_hunter\web_ui\app.py", line 261, in run_etherscan_scan
+    raise Exception(f"Contract not verified on {chain.capitalize()}")
+Exception: Contract not verified on Bsc
+2025-11-23 23:16:10,139 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:16:10] "GET /scan/status/scan_1 HTTP/1.1" 200 -
+2025-11-23 23:16:20,030 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:16:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:16:49,727 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:16:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:17:20,032 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:17:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:17:49,723 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:17:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:18:20,030 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:18:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:18:49,719 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:18:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:19:20,025 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:19:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:19:49,721 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:19:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:20:20,039 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:20:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:20:49,728 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:20:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:21:20,023 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:21:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:21:49,722 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:21:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:22:20,033 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:22:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:22:49,720 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:22:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:23:20,031 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:23:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:23:49,730 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:23:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:24:20,023 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:24:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:24:49,727 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:24:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:25:20,045 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:25:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:25:49,715 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:25:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:26:20,016 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:26:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:26:49,713 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:26:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:27:20,028 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:27:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:27:49,715 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:27:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:28:20,014 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:28:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:28:49,713 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:28:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:29:20,019 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:29:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:29:49,715 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:29:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:30:20,029 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:30:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:30:49,715 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:30:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:31:20,033 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:31:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:31:49,716 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:31:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:32:20,017 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:32:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:32:49,713 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:32:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:33:20,026 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:33:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:33:49,714 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:33:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:34:20,013 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:34:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:34:49,714 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:34:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:35:20,026 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:35:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:35:49,718 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:35:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:36:20,011 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:36:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:36:49,708 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:36:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:37:20,021 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:37:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:37:49,708 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:37:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:38:20,013 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:38:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:38:49,707 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:38:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:39:20,012 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:39:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:39:49,707 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:39:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:40:20,010 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:40:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:40:49,704 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:40:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:41:20,021 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:41:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:41:49,708 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:41:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:42:20,006 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:42:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:42:49,706 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:42:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:43:20,023 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:43:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:43:49,707 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:43:49] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:44:20,034 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:44:20] "GET /stats HTTP/1.1" 200 -
+2025-11-23 23:44:49,704 - werkzeug - INFO - 127.0.0.1 - - [23/Nov/2025 23:44:49] "GET /stats HTTP/1.1" 200 -

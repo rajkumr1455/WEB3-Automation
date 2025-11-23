@@ -1,0 +1,6 @@
+[package]
+name = "defuse-nep461"
+edition.workspace = true
+version.workspace = true
+rust-version.workspace = true
+repository.workspace = true

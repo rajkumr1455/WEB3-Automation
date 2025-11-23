@@ -1,0 +1,19 @@
+[package]
+name = "defuse-webauthn"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+defuse-crypto = { workspace = true, features = ["serde"] }
+defuse-serde-utils.workspace = true
+
+near-sdk.workspace = true
+serde_with.workspace = true
+
+[features]
+abi = ["defuse-serde-utils/abi", "defuse-crypto/abi"]

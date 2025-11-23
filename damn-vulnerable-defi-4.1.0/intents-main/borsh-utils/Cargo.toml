@@ -1,0 +1,20 @@
+[package]
+name = "defuse-borsh-utils"
+edition.workspace = true
+version.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+defuse-io-utils.workspace = true
+
+array-util.workspace = true
+impl-tools.workspace = true
+near-sdk.workspace = true
+chrono = { workspace = true, optional = true }
+
+[features]
+chrono = ["dep:chrono"]

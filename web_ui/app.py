@@ -1,0 +1,329 @@
+"""
+Web3 Hunter - Web UI
+Modern Flask-based interface for vulnerability scanning
+"""
+
+from flask import Flask, render_template, request, jsonify, send_file, redirect, url_for
+from werkzeug.utils import secure_filename
+import os
+import json
+import threading
+from pathlib import Path
+import sys
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('data/web_ui.log')
+    ]
+)
+logger = logging.getLogger(__name__)
+
+# Add parent directory to path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from src.orchestration.hunter_graph import HunterGraph
+from src.reporting.report_generator import ReportGenerator
+from src.integrations.etherscan_api import EtherscanAPI
+from src.config import config
+
+app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = 'data/uploads'
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
+app.config['SECRET_KEY'] = 'web3-hunter-secret-key-change-in-production'
+
+# Ensure directories exist
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+os.makedirs('data/reports', exist_ok=True)
+os.makedirs('data/logs', exist_ok=True)
+
+# Global scan results storage
+scan_results = {}
+
+@app.route('/')
+def index():
+    """Main dashboard"""
+    return render_template('index.html')
+
+@app.route('/scan/upload', methods=['POST'])
+def scan_upload():
+    """Handle file upload and scan"""
+    if 'contract' not in request.files:
+        return jsonify({'error': 'No file uploaded'}), 400
+    
+    file = request.files['contract']
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+    
+    if not file.filename.endswith('.sol'):
+        return jsonify({'error': 'Only .sol files allowed'}), 400
+    
+    # Save file
+    filename = secure_filename(file.filename)
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file.save(filepath)
+    
+    # Start scan in background
+    scan_id = f"scan_{len(scan_results) + 1}"
+    scan_results[scan_id] = {'status': 'running', 'progress': 0}
+    
+    thread = threading.Thread(target=run_scan, args=(scan_id, filepath, filename))
+    thread.daemon = True
+    thread.start()
+    
+    return jsonify({'scan_id': scan_id, 'message': 'Scan started'})
+
+@app.route('/scan/etherscan', methods=['POST'])
+def scan_etherscan():
+    """Scan contract from Etherscan (multi-chain support)"""
+    data = request.get_json()
+    address = data.get('address')
+    api_key = data.get('api_key', '')
+    chain = data.get('chain', 'ethereum')  # Default to Ethereum
+    
+    if not address:
+        return jsonify({'error': 'No address provided'}), 400
+    
+    # Start scan
+    scan_id = f"scan_{len(scan_results) + 1}"
+    scan_results[scan_id] = {'status': 'running', 'progress': 0}
+    
+    thread = threading.Thread(target=run_etherscan_scan, args=(scan_id, address, api_key, chain))
+    thread.daemon = True
+    thread.start()
+    
+    return jsonify({'scan_id': scan_id, 'message': f'Scan started on {chain}'})
+
+@app.route('/scan/github', methods=['POST'])
+def scan_github():
+    """Scan GitHub repository"""
+    data = request.get_json()
+    repo_url = data.get('repo_url')
+    
+    if not repo_url:
+        return jsonify({'error': 'No repository URL provided'}), 400
+    
+    # Start scan
+    scan_id = f"scan_{len(scan_results) + 1}"
+    scan_results[scan_id] = {'status': 'running', 'progress': 0}
+    
+    thread = threading.Thread(target=run_github_scan, args=(scan_id, repo_url))
+    thread.daemon = True
+    thread.start()
+    
+    return jsonify({'scan_id': scan_id, 'message': 'Scan started'})
+
+@app.route('/scan/status/<scan_id>')
+def scan_status(scan_id):
+    """Get scan status"""
+    if scan_id not in scan_results:
+        return jsonify({'error': 'Scan not found'}), 404
+    
+    return jsonify(scan_results[scan_id])
+
+@app.route('/reports')
+def list_reports():
+    """List all generated reports"""
+    reports_dir = Path('data/reports')
+    reports = []
+    
+    for report_file in reports_dir.glob('*.html'):
+        reports.append({
+            'name': report_file.stem,
+            'filename': report_file.name,
+            'size': report_file.stat().st_size,
+            'modified': report_file.stat().st_mtime
+        })
+    
+    reports.sort(key=lambda x: x['modified'], reverse=True)
+    return jsonify(reports)
+
+@app.route('/reports/<filename>')
+def view_report(filename):
+    """View a specific report"""
+    filepath = os.path.join('data/reports', filename)
+    if not os.path.exists(filepath):
+        return "Report not found", 404
+    
+    return send_file(filepath)
+
+@app.route('/stats')
+def get_stats():
+    """Get overall statistics"""
+    stats = {
+        'total_scans': len(scan_results),
+        'completed_scans': sum(1 for s in scan_results.values() if s['status'] == 'completed'),
+        'failed_scans': sum(1 for s in scan_results.values() if s['status'] == 'failed'),
+        'total_reports': len(list(Path('data/reports').glob('*.html')))
+    }
+    return jsonify(stats)
+
+def run_scan(scan_id, filepath, filename):
+    """Background scan task for uploaded files"""
+    try:
+        logger.info(f"[{scan_id}] Starting scan for {filename}")
+        scan_results[scan_id]['progress'] = 10
+        scan_results[scan_id]['status'] = 'analyzing'
+        
+        # Initialize components
+        logger.info(f"[{scan_id}] Initializing HunterGraph (with Ollama LLM)...")
+        try:
+            graph = HunterGraph()
+            logger.info(f"[{scan_id}] HunterGraph initialized successfully")
+        except Exception as e:
+            logger.error(f"[{scan_id}] Failed to initialize HunterGraph: {e}", exc_info=True)
+            raise Exception(f"Failed to initialize scanner: {str(e)}")
+            
+        logger.info(f"[{scan_id}] Initializing ReportGenerator...")
+        report_gen = ReportGenerator()
+        
+        scan_results[scan_id]['progress'] = 30
+        
+        # Run analysis
+        logger.info(f"[{scan_id}] Running analysis on {filepath}...")
+        state = {
+            "target_url": f"upload://{filename}",
+            "local_path": filepath,  # Pass the full file path, not just directory!
+            "slither_results": [],
+            "flattened_code": "",
+            "vulnerabilities": ""
+        }
+        
+        try:
+            result = graph.analyze_node(state)
+            logger.info(f"[{scan_id}] Analysis completed")
+        except Exception as e:
+            logger.error(f"[{scan_id}] Analysis failed: {e}", exc_info=True)
+            raise Exception(f"Analysis failed: {str(e)}")
+        
+        scan_results[scan_id]['progress'] = 70
+        
+        # Generate report
+        logger.info(f"[{scan_id}] Generating report...")
+        try:
+            report_path = report_gen.generate_html_report(
+                contract_name=Path(filename).stem,
+                source_code=result.get('flattened_code', ''),
+                findings=result.get('vulnerabilities', '{}'),
+                slither_results=result.get('slither_results', []),
+                poc_code=result.get('poc_code', '')
+            )
+            logger.info(f"[{scan_id}] Report generated at {report_path}")
+        except Exception as e:
+            logger.error(f"[{scan_id}] Report generation failed: {e}", exc_info=True)
+            raise Exception(f"Report generation failed: {str(e)}")
+        
+        scan_results[scan_id]['progress'] = 100
+        scan_results[scan_id]['status'] = 'completed'
+        scan_results[scan_id]['report_url'] = f"/reports/{Path(report_path).name}"
+        
+        # Parse vulnerabilities for summary
+        vulns_str = result.get('vulnerabilities', '{}')
+        try:
+            vulns_data = json.loads(vulns_str) if isinstance(vulns_str, str) else vulns_str
+            if isinstance(vulns_data, dict) and 'vulnerabilities' in vulns_data:
+                vulns_list = vulns_data['vulnerabilities']
+            else:
+                vulns_list = vulns_data if isinstance(vulns_data, list) else []
+            
+            scan_results[scan_id]['vulnerabilities_found'] = len(vulns_list)
+            scan_results[scan_id]['slither_issues'] = len(result.get('slither_results', []))
+        except:
+            scan_results[scan_id]['vulnerabilities_found'] = 0
+            scan_results[scan_id]['slither_issues'] = 0
+        
+        logger.info(f"[{scan_id}] Scan completed successfully - Found {scan_results[scan_id].get('vulnerabilities_found', 0)} vulnerabilities")
+        
+    except Exception as e:
+        logger.error(f"[{scan_id}] SCAN FAILED: {str(e)}", exc_info=True)
+        scan_results[scan_id]['status'] = 'failed'
+        scan_results[scan_id]['error'] = str(e)
+        scan_results[scan_id]['progress'] = 0
+
+def run_etherscan_scan(scan_id, address, api_key, chain='ethereum'):
+    """Background scan for Etherscan contracts (multi-chain)"""
+    try:
+        logger.info(f"[{scan_id}] Starting Etherscan scan for {address} on {chain}")
+        scan_results[scan_id]['progress'] = 10
+        
+        # Use provided API key or get from config
+        if not api_key:
+            api_key = config.get_api_key(chain)
+        
+        etherscan = EtherscanAPI(api_key=api_key if api_key else None, chain=chain)
+        source_data = etherscan.get_contract_source(address)
+        
+        if not source_data or not source_data.get('source_code'):
+            raise Exception(f"Contract not verified on {chain.capitalize()}")
+        
+        scan_results[scan_id]['progress'] = 30
+        
+        # Save to temp file
+        temp_dir = Path(app.config['UPLOAD_FOLDER'])
+        contract_name = source_data.get('contract_name', 'Contract')
+        temp_file = temp_dir / f"{contract_name}.sol"
+        
+        with open(temp_file, 'w', encoding='utf-8') as f:
+            f.write(source_data['source_code'])
+        
+        # Run scan
+        run_scan(scan_id, str(temp_file), f"{contract_name} ({chain.capitalize()})")
+        
+    except Exception as e:
+        logger.error(f"[{scan_id}] Etherscan scan failed: {e}", exc_info=True)
+        scan_results[scan_id]['status'] = 'failed'
+        scan_results[scan_id]['error'] = str(e)
+
+def run_github_scan(scan_id, repo_url):
+    """Background scan for GitHub repos"""
+    try:
+        logger.info(f"[{scan_id}] Starting GitHub scan for {repo_url}")
+        scan_results[scan_id]['progress'] = 10
+        
+        from src.ingestion.contract_fetcher import ContractFetcher
+        fetcher = ContractFetcher()
+        
+        local_path = fetcher.fetch_from_git(repo_url)
+        if not local_path:
+            raise Exception("Failed to clone repository")
+        
+        scan_results[scan_id]['progress'] = 40
+        
+        # Find all .sol files
+        sol_files = list(Path(local_path).rglob('*.sol'))
+        sol_files = [f for f in sol_files if not any(x in str(f).lower() for x in ['test', 'mock', 'lib/'])]
+        
+        if not sol_files:
+            raise Exception("No Solidity contracts found")
+        
+        # Scan first contract (can be extended to scan all)
+        run_scan(scan_id, str(sol_files[0]), f"{repo_url} - {sol_files[0].name}")
+        
+    except Exception as e:
+        logger.error(f"[{scan_id}] GitHub scan failed: {e}", exc_info=True)
+        scan_results[scan_id]['status'] = 'failed'
+        scan_results[scan_id]['error'] = str(e)
+
+if __name__ == '__main__':
+    # Fix Windows console encoding for emoji support
+    if sys.platform == 'win32':
+        import io
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+    
+    print("\n" + "="*80)
+    print("🚀 Web3 Hunter Web UI Starting...")
+    print("="*80)
+    print("\n📍 Access the interface at: http://localhost:5000")
+    print("\n✨ Features:")
+    print("   - Upload .sol files")
+    print("   - Scan Etherscan contracts")
+    print("   - Analyze GitHub repositories")
+    print("   - View reports & statistics")
+    print(f"\n🤖 LLM: Ollama (codellama:13b) - Status: {'✅ Running' if os.system('curl -s http://localhost:11434/api/tags > nul 2>&1') == 0 else '❌ Not detected'}")
+    print("\n")
+    
+    app.run(debug=True, host='0.0.0.0', port=5000)

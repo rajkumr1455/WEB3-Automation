@@ -1,0 +1,12 @@
+[package]
+name = "defuse-admin-utils"
+edition.workspace = true
+version.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+
+[dependencies]
+near-sdk.workspace = true
+
+[lints]
+workspace = true
