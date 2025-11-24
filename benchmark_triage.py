@@ -51,9 +51,8 @@ def run_benchmark():
     print("Target: SafeVault (uses nonReentrant)")
     print("Finding: Reentrancy (Simulated)")
     
-    # Check for API Key
-    if not os.getenv("GEMINI_API_KEY"):
-        print("WARNING: GEMINI_API_KEY not set. Benchmark will fail or return error.")
+    # Local LLM check (optional, could check if ollama is running)
+    print("Using Local LLM (Qwen 2.5)...")
     
     result = analyze_finding(FAKE_FINDING, SAFE_CONTRACT)
     
