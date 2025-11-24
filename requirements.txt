@@ -1,16 +1,2 @@
-langchain
-langchain-community
-langchain-openai
-langchain-core
-pyyaml
-flask
-werkzeug
-requestsi
-
-pydantic
-requests
-python-dotenv
-tiktoken
-web3
 slither-analyzer
-
+requests

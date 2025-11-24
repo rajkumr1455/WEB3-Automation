@@ -1,0 +1,51 @@
+name: Audit Bot
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install solc-select
+          solc-select install 0.8.19
+          solc-select use 0.8.19
+
+      - name: Install Aderyn
+        run: |
+          # Attempt to install from crates.io
+          cargo install aderyn --locked || echo "Aderyn install via cargo failed"
+
+      - name: Run Audit
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python audit_runner.py . > report.md
+          cat report.md
+
+      - name: Post Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          path: report.md
