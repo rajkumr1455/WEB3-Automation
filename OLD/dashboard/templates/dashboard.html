@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web3 Hunter Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            color: #e0e6ed;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .scan-form {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        select,
+        input,
+        textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            color: #e0e6ed;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        textarea {
+            min-height: 200px;
+            font-family: 'Courier New', monospace;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 0.875rem 2rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .scans-list {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .scan-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #667eea;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .badge-high {
+            background: #ef4444;
+        }
+
+        .badge-medium {
+            background: #f59e0b;
+        }
+
+        .badge-low {
+            background: #10b981;
+        }
+
+        .mode-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .mode-tab {
+            flex: 1;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .mode-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔍 Web3 Hunter</h1>
+            <p>Agentic Smart Contract Security Analysis</p>
+        </header>
+
+        <div class="scan-form">
+            <h2 style="margin-bottom: 1rem;">New Scan</h2>
+
+            <div class="mode-tabs">
+                <div class="mode-tab active" onclick="switchMode('address')">📍 Contract Address</div>
+                <div class="mode-tab" onclick="switchMode('source')">📝 Source Code</div>
+            </div>
+
+            <div id="address-mode">
+                <select id="chain-select">
+                    <option value="eth">Ethereum Mainnet</option>
+                    <option value="bsc">Binance Smart Chain (BSC)</option>
+                    <option value="polygon">Polygon</option>
+                    <option value="arbitrum">Arbitrum</option>
+                    <option value="optimism">Optimism</option>
+                </select>
+
+                <input type="text" id="contract-address" placeholder="0x... Contract Address"
+                    value="0x00b174d66adA7d63789087F50A9b9e0e48446dc1">
+                <input type="text" id="api-key" placeholder="Your API Key (Etherscan/BscScan/etc)">
+
+                <button onclick="scanAddress()">🔍 Scan Contract</button>
+                <div id="address-status" style="margin-top: 1rem;"></div>
+            </div>
+
+            <div id="source-mode" style="display: none;">
+                <textarea id="source-code" placeholder="Paste Solidity source code here..."></textarea>
+                <button onclick="scanSource()">🚀 Analyze Code</button>
+                <div id="source-status" style="margin-top: 1rem;"></div>
+            </div>
+        </div>
+
+        <div class="scans-list">
+            <h2 style="margin-bottom: 1rem;">Recent Scans</h2>
+            <div id="scan-results">
+                {% if scans %}
+                {% for scan in scans %}
+                <div class="scan-item">
+                    <strong>{{ scan.name }}</strong>
+                    {% if scan.status == 'completed' %}
+                    <span class="badge badge-low">✅ Completed</span>
+                    {% elif scan.status == 'failed' %}
+                    <span class="badge badge-high">❌ Failed</span>
+                    {% else %}
+                    <span class="badge badge-medium">⏳ Pending</span>
+                    {% endif %}
+                    <p style="color: #9ca3af; font-size: 0.875rem; margin-top: 0.5rem;">{{ scan.timestamp }}</p>
+
+                    {% if scan.get('result') and scan.result.get('llm') %}
+                    {% set vulns = scan.result.llm.vulnerabilities %}
+                    <div
+                        style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <strong>🔍 Found {{ vulns|length }} vulnerabilities</strong>
+                        {% for v in vulns %}
+                        <div style="margin-top: 0.5rem; margin-left: 1rem;">
+                            <span class="badge badge-{{ v.severity|lower }}">{{ v.severity }}</span>
+                            <strong>{{ v.type }}</strong> at Line {{ v.line }}
+                            <p style="color: #9ca3af; font-size: 0.85rem; margin-left: 1rem; margin-top: 0.25rem;">
+                                {{ v.description[:100] }}...
+                            </p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                {% else %}
+                <p style="color: #9ca3af;">No scans yet. Submit your first contract above!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchMode(mode) {
+            const tabs = document.querySelectorAll('.mode-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+
+            if (mode === 'address') {
+                tabs[0].classList.add('active');
+                document.getElementById('address-mode').style.display = 'block';
+                document.getElementById('source-mode').style.display = 'none';
+            } else {
+                tabs[1].classList.add('active');
+                document.getElementById('address-mode').style.display = 'none';
+                document.getElementById('source-mode').style.display = 'block';
+            }
+        }
+
+        async function scanAddress() {
+            const chain = document.getElementById('chain-select').value;
+            const address = document.getElementById('contract-address').value;
+            const apiKey = document.getElementById('api-key').value;
+            const status = document.getElementById('address-status');
+
+            if (!address.trim()) {
+                status.innerHTML = '<span style="color: #ef4444;">Please enter a contract address</span>';
+                return;
+            }
+
+            status.innerHTML = '<span style="color: #f59e0b;">⏳ Fetching contract from ' + chain.toUpperCase() + '...</span>';
+
+            const response = await fetch('/api/scan_address', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chain: chain, address: address, api_key: apiKey })
+            });
+
+            const data = await response.json();
+
+            if (data.error) {
+                status.innerHTML = `<span style="color: #ef4444;">❌ ${data.error}</span>`;
+            } else {
+                status.innerHTML = `<span style="color: #10b981;">✅ ${data.message}</span>`;
+                setTimeout(() => location.reload(), 60000);
+            }
+        }
+
+        async function scanSource() {
+            const code = document.getElementById('source-code').value;
+            const status = document.getElementById('source-status');
+
+            if (!code.trim()) {
+                status.innerHTML = '<span style="color: #ef4444;">Please enter some code</span>';
+                return;
+            }
+
+            status.innerHTML = '<span style="color: #f59e0b;">⏳ Scanning...</span>';
+
+            const response = await fetch('/api/scan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ source_code: code, name: 'Contract' })
+            });
+
+            const data = await response.json();
+
+            if (data.task_id) {
+                status.innerHTML = `<span style="color: #10b981;">✅ Task ID: ${data.task_id}</span>`;
+                setTimeout(() => location.reload(), 30000);
+            }
+        }
+    </script>
+</body>
+
+</html>
