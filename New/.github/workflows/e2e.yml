@@ -1,0 +1,126 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  e2e-tests:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [20.x]
+        python-version: ['3.11']
+    
+    services:
+      docker:
+        image: docker:24-dind
+        options: --privileged
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      
+      - name: Install Node dependencies
+        run: npm ci
+        working-directory: ./web-ui
+      
+      - name: Install Python dependencies
+        run: |
+          pip install -r tests/backend/requirements.txt
+      
+      - name: Install Playwright
+        run: npx playwright install chromium --with-deps
+      
+      - name: Start Docker services
+        run: |
+          docker compose -f docker-compose.yml up -d
+        env:
+          SCAN_MODE: fork
+          ALLOW_LIVE: "0"
+      
+      - name: Wait for services to be healthy
+        run: |
+          chmod +x tests/e2e/bootstrap.sh
+          ./tests/e2e/bootstrap.sh
+        timeout-minutes: 5
+      
+      - name: Run backend tests
+        run: |
+          pytest tests/backend -v --tb=short --junit-xml=test-results/backend-junit.xml
+        env:
+          SCAN_MODE: fork
+          ALLOW_LIVE: "0"
+      
+      - name: Build web UI
+        run: npm run build
+        working-directory: ./web-ui
+      
+      - name: Run Playwright tests
+        run: |
+          npx playwright test --reporter=html,junit
+        env:
+          CI: true
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 30
+      
+      - name: Upload Playwright traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: tests/ui/test-results/
+          retention-days: 7
+      
+      - name: Collect Docker logs
+        if: failure()
+        run: |
+          mkdir -p logs
+          docker compose logs > logs/all-services.log
+          docker logs address-scanner > logs/address-scanner.log 2>&1 || true
+          docker logs guardrail > logs/guardrail.log 2>&1 || true
+          docker logs validator-worker > logs/validator-worker.log 2>&1 || true
+      
+      - name: Upload Docker logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-logs
+          path: logs/
+          retention-days: 7
+      
+      - name: Teardown
+        if: always()
+        run: |
+          docker compose down --volumes --remove-orphans
+
+# For Windows self-hosted runner:
+# - Install Docker Desktop for Windows
+# - Enable Linux containers
+# - Run PowerShell commands:
+#   .\tests\e2e\bootstrap.ps1
+#   pytest tests\backend -v
+#   npx playwright test

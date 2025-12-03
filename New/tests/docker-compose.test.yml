@@ -1,0 +1,144 @@
+version: '3.8'
+
+services:
+  # Backend integration tests
+  backend-tests:
+    image: web3-tests:latest
+    container_name: backend-tests
+    networks:
+      - test-net
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+    depends_on:
+      - address-scanner
+      - guardrail
+      - validator-worker
+      - mlops-engine
+      - signature-generator
+      - remediator
+      - streaming-indexer
+      - reporting-agent
+      - prometheus
+    command: python -m pytest tests/backend -v --tb=short
+    volumes:
+      - ./test-results:/app/test-results
+
+  # Service dependencies (from main docker-compose)
+  address-scanner:
+    image: new-address-scanner:latest
+    container_name: test-address-scanner
+    ports:
+      - "18008:8008"
+    networks:
+      - test-net
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8008/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  guardrail:
+    image: new-guardrail:latest
+    container_name: test-guardrail
+    ports:
+      - "18009:8009"
+    networks:
+      - test-net
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8009/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  validator-worker:
+    image: new-validator-worker:latest
+    container_name: test-validator-worker
+    ports:
+      - "18010:8010"
+    networks:
+      - test-net
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8010/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mlops-engine:
+    image: new-mlops-engine:latest
+    container_name: test-mlops-engine
+    ports:
+      - "18011:8011"
+    networks:
+      - test-net
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8011/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  signature-generator:
+    image: new-signature-generator:latest
+    container_name: test-signature-generator
+    ports:
+      - "18012:8012"
+    networks:
+      - test-net
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8012/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  remediator:
+    image: new-remediator:latest
+    container_name: test-remediator
+    ports:
+      - "18013:8013"
+    networks:
+      - test-net
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8013/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  streaming-indexer:
+    image: new-streaming-indexer:latest
+    container_name: test-streaming-indexer
+    ports:
+      - "18014:8014"
+    networks:
+      - test-net
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8014/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  reporting-agent:
+    image: new-reporting-agent:latest
+    container_name: test-reporting-agent
+    ports:
+      - "18007:8007"
+    networks:
+      - test-net
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8007/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: test-prometheus
+    ports:
+      - "19090:9090"
+    networks:
+      - test-net
+
+networks:
+  test-net:
+    driver: bridge
+
+volumes:
+  test-results:

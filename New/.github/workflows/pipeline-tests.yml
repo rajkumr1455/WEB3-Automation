@@ -1,0 +1,89 @@
+name: Pipeline Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test-inmemory:
+    name: Test InMemory Pipeline
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-asyncio
+        pip install -r services/requirements.txt || true
+    
+    - name: Run InMemory tests
+      run: |
+        export PYTHONPATH=$PYTHONPATH:$(pwd)/services
+        pytest tests/test_pipeline_inmemory.py -v
+  
+  test-with-postgres:
+    name: Test with PostgreSQL Migration
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_USER: testuser
+          POSTGRES_DB: testdb
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-asyncio sqlalchemy psycopg2-binary
+        pip install -r services/requirements.txt || true
+    
+    - name: Run migration tests
+      env:
+        DATABASE_URL: postgresql://testuser:testpass@localhost:5432/testdb
+        RQ_BROKER_URL: redis://localhost:6379/0
+        PYTHONPATH: ${{ github.workspace }}/services
+      run: |
+        pytest tests/test_migration.py -v
+    
+    - name: Run full pipeline tests
+      env:
+        DATABASE_URL: postgresql://testuser:testpass@localhost:5432/testdb
+        PYTHONPATH: ${{ github.workspace }}/services
+      run: |
+        pytest tests/ -v --tb=short

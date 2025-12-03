@@ -1,0 +1,406 @@
+version: '3.8'
+
+services:
+  # LLM Router - Routes requests to appropriate LLM backends
+  llm-router:
+    build:
+      context: ./services/llm-router
+      dockerfile: Dockerfile
+    container_name: llm-router
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_HOST=http://host.docker.internal:11434
+      - CLAUDE_API_KEY=${CLAUDE_API_KEY}
+    volumes:
+      - ./services/llm-router/router_config.yaml:/app/router_config.yaml:ro
+    networks:
+      - web3-net
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Orchestrator - Central pipeline controller
+  orchestrator:
+    build:
+      context: ./services/orchestrator
+      dockerfile: Dockerfile
+    container_name: orchestrator
+    ports:
+      - "8001:8001"
+    environment:
+      - LLM_ROUTER_URL=http://llm-router:8000
+      - RECON_AGENT_URL=http://recon-agent:8002
+      - STATIC_AGENT_URL=http://static-agent:8003
+      - FUZZING_AGENT_URL=http://fuzzing-agent:8004
+      - MONITORING_AGENT_URL=http://monitoring-agent:8005
+      - TRIAGE_AGENT_URL=http://triage-agent:8006
+      - REPORTING_AGENT_URL=http://reporting-agent:8007
+      - ADDRESS_SCANNER_URL=http://address-scanner:8008
+      - QDRANT_URL=http://qdrant:6333
+      - DATABASE_URL=postgresql://web3hunter:hunter_password@postgres:5432/web3hunter
+    volumes:
+      - ./data/scans:/app/scans
+      - ./data/reports:/app/reports
+    networks:
+      - web3-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      llm-router:
+        condition: service_started
+      qdrant:
+        condition: service_started
+    restart: unless-stopped
+
+  # RQ Worker - Background job processing (replaced Celery)
+  rq-worker:
+    build:
+      context: ./services/orchestrator
+      dockerfile: Dockerfile
+    container_name: rq-worker
+    command: rq worker --url redis://redis:6379/0 scans
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - DATABASE_URL=postgresql://web3hunter:hunter_password@postgres:5432/web3hunter
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=INFO
+      - LLM_ROUTER_URL=http://llm-router:8000
+      - RECON_AGENT_URL=http://recon-agent:8002
+      - STATIC_AGENT_URL=http://static-agent:8003
+      - FUZZING_AGENT_URL=http://fuzzing-agent:8004
+      - MONITORING_AGENT_URL=http://monitoring-agent:8005
+      - TRIAGE_AGENT_URL=http://triage-agent:8006
+      - REPORTING_AGENT_URL=http://reporting-agent:8007
+      - ADDRESS_SCANNER_URL=http://address-scanner:8008
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - web3-net
+    restart: unless-stopped
+
+  # Recon Agent - Repository mapping and surface discovery
+  recon-agent:
+    build:
+      context: ./services/recon-agent
+      dockerfile: Dockerfile
+    container_name: recon-agent
+    ports:
+      - "8002:8002"
+    environment:
+      - LLM_ROUTER_URL=http://llm-router:8000
+      - QDRANT_URL=http://qdrant:6333
+    volumes:
+      - ./data/recon:/app/data
+    networks:
+      - web3-net
+    depends_on:
+      - llm-router
+    restart: unless-stopped
+
+  # Static Analysis Agent - Slither, Mythril, Semgrep
+  static-agent:
+    build:
+      context: ./services/static-agent
+      dockerfile: Dockerfile
+    container_name: static-agent
+    ports:
+      - "8003:8003"
+    environment:
+      - LLM_ROUTER_URL=http://llm-router:8000
+      - QDRANT_URL=http://qdrant:6333
+    volumes:
+      - ./data/static:/app/data
+      - ./configs/semgrep:/app/semgrep-rules:ro
+    networks:
+      - web3-net
+    depends_on:
+      - llm-router
+    restart: unless-stopped
+
+  # Fuzzing Agent - Foundry, Echidna, Manticore
+  fuzzing-agent:
+    build:
+      context: ./services/fuzzing-agent
+      dockerfile: Dockerfile
+    container_name: fuzzing-agent
+    ports:
+      - "8004:8004"
+    environment:
+      - LLM_ROUTER_URL=http://llm-router:8000
+      - FOUNDRY_PROFILE=default
+    volumes:
+      - ./data/fuzzing:/app/data
+    networks:
+      - web3-net
+    depends_on:
+      - llm-router
+    restart: unless-stopped
+
+  # Dynamic Monitoring Agent - Mempool, Oracle, DNS monitoring
+  monitoring-agent:
+    build:
+      context: ./services/monitoring-agent
+      dockerfile: Dockerfile
+    container_name: monitoring-agent
+    ports:
+      - "8005:8005"
+    environment:
+      - LLM_ROUTER_URL=http://llm-router:8000
+      - QDRANT_URL=http://qdrant:6333
+    volumes:
+      - ./data/monitoring:/app/data
+    networks:
+      - web3-net
+    depends_on:
+      - llm-router
+    restart: unless-stopped
+
+  # Triage Agent - Multi-tier vulnerability classification
+  triage-agent:
+    build:
+      context: ./services/triage-agent
+      dockerfile: Dockerfile
+    container_name: triage-agent
+    ports:
+      - "8006:8006"
+    environment:
+      - LLM_ROUTER_URL=http://llm-router:8000
+      - QDRANT_URL=http://qdrant:6333
+    volumes:
+      - ./data/triage:/app/data
+    networks:
+      - web3-net
+    depends_on:
+      - llm-router
+    restart: unless-stopped
+
+  # Reporting Agent - Report generation and notifications
+  reporting-agent:
+    build:
+      context: ./services/reporting-agent
+      dockerfile: Dockerfile
+    container_name: reporting-agent
+    ports:
+      - "8007:8007"
+    environment:
+      - LLM_ROUTER_URL=http://llm-router:8000
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+    volumes:
+      - ./data/reports:/app/reports
+      - ./services/reporting-agent/templates:/app/templates:ro
+    networks:
+      - web3-net
+    depends_on:
+      - llm-router
+    restart: unless-stopped
+
+  # PostgreSQL - Production database for scan persistence
+
+  # Web UI - Next.js frontend
+  web-ui:
+    build:
+      context: ./web-ui
+      dockerfile: Dockerfile
+    container_name: web-ui
+    ports:
+      - "3001:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8001
+    networks:
+      - web3-net
+    depends_on:
+      - orchestrator
+      - llm-router
+    restart: unless-stopped
+
+  # Address Scanner - Multi-chain contract scanner
+  address-scanner:
+    build:
+      context: ./services/address-scanner
+      dockerfile: Dockerfile
+    container_name: address-scanner
+    ports:
+      - "8008:8008"
+    environment:
+      - ETHERSCAN_API_KEY=${ETHERSCAN_API_KEY}
+      - BSCSCAN_API_KEY=${BSCSCAN_API_KEY}
+      - POLYGONSCAN_API_KEY=${POLYGONSCAN_API_KEY}
+      - ARBISCAN_API_KEY=${ARBISCAN_API_KEY}
+      - OPTIMISM_API_KEY=${OPTIMISM_API_KEY}
+    networks:
+      - web3-net
+    depends_on:
+      - static-agent
+    restart: unless-stopped
+
+  # Guardrail - Real-time transaction monitoring and auto-pause
+  guardrail:
+    build:
+      context: ./services/guardrail
+      dockerfile: Dockerfile
+    container_name: guardrail
+    ports:
+      - "8009:8009"
+    environment:
+      - ETH_RPC_URL=${ETH_RPC_URL}
+      - BSC_RPC_URL=${BSC_RPC_URL}
+      - POLYGON_RPC_URL=${POLYGON_RPC_URL}
+    networks:
+      - web3-net
+    restart: unless-stopped
+
+  # Validator Worker - Finding validation and reproduction
+  validator-worker:
+    build:
+      context: ./services/validator-worker
+      dockerfile: Dockerfile
+    container_name: validator-worker
+    ports:
+      - "8010:8010"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - web3-net
+    restart: unless-stopped
+
+  # ML-Ops Engine - Continuous learning and rule generation
+  mlops-engine:
+    build:
+      context: ./services/mlops-engine
+      dockerfile: Dockerfile
+    container_name: mlops-engine
+    ports:
+      - "8011:8011"
+    networks:
+      - web3-net
+    restart: unless-stopped
+
+  # Signature Generator - Convert findings to detection rules
+  signature-generator:
+    build:
+      context: ./services/signature-generator
+      dockerfile: Dockerfile
+    container_name: signature-generator
+    ports:
+      - "8012:8012"
+    networks:
+      - web3-net
+    restart: unless-stopped
+
+  # Remediator - Automated vulnerability remediation
+  remediator:
+    build:
+      context: ./services/remediator
+      dockerfile: Dockerfile
+    container_name: remediator
+    ports:
+      - "8013:8013"
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    networks:
+      - web3-net
+    restart: unless-stopped
+
+  # Streaming Indexer - Real-time blockchain event indexing
+  streaming-indexer:
+    build:
+      context: ./services/streaming-indexer
+      dockerfile: Dockerfile
+    container_name: streaming-indexer
+    ports:
+      - "8014:8014"
+    networks:
+      - web3-net
+    restart: unless-stopped
+
+  # PostgreSQL - Production database for scan persistence
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_USER: web3hunter
+      POSTGRES_PASSWORD: hunter_password
+      POSTGRES_DB: web3hunter
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - web3-net
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U web3hunter" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis - Message Broker for Celery
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - web3-net
+    restart: unless-stopped
+
+  # Qdrant - Vector database for RAG
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - web3-net
+    restart: unless-stopped
+
+  # Prometheus - Metrics collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - web3-net
+    restart: unless-stopped
+
+networks:
+  web3-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  qdrant_data:
+  prometheus_data:

@@ -1,0 +1,138 @@
+# Prometheus Alerting Rules for Web3 Hunter
+# Place in: configs/monitoring/alert_rules.yml
+
+groups:
+  - name: web3_hunter_alerts
+    interval: 30s
+    rules:
+      
+      # High Error Rate Alert
+      - alert: HighScanFailureRate
+        expr: |
+          (
+            rate(scan_total{status="failed"}[5m]) 
+            / 
+            rate(scan_total[5m])
+          ) > 0.5
+        for: 5m
+        labels:
+          severity: critical
+          component: orchestrator
+        annotations:
+          summary: "High scan failure rate detected"
+          description: "More than 50% of scans are failing in the last 5 minutes"
+      
+      # Agent Errors
+      - alert: AgentHighErrorRate
+        expr: rate(agent_errors_total[5m]) > 5
+        for: 2m
+        labels:
+          severity: warning
+          component: "{{ $labels.agent }}"
+        annotations:
+          summary: "High error rate for {{ $labels.agent }} agent"
+          description: "Agent {{ $labels.agent }} is experiencing {{ $value }} errors per second"
+      
+      # No Active Scans (System might be down)
+      - alert: NoActiveScansSuspicious
+        expr: |
+          (
+            active_scans == 0
+            and
+            rate(scan_total[5m]) == 0
+            and
+            time() - process_start_time_seconds > 300
+          )
+        for: 10m
+        labels:
+          severity: warning
+          component: orchestrator
+        annotations:
+          summary: "No scans active for 10 minutes"
+          description: "System may be down or not receiving requests"
+      
+      # Database Connection Issues
+      - alert: DatabaseErrors
+        expr: rate(db_errors_total[5m]) > 1
+        for: 3m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "Database errors detected"
+          description: "Database operations failing at {{ $value }} errors/second"
+      
+      # Slow Scans
+      - alert: SlowScanPerformance
+        expr: histogram_quantile(0.95, rate(scan_duration_seconds_bucket[5m])) > 600
+        for: 10m
+        labels:
+          severity: warning
+          component: orchestrator
+        annotations:
+          summary: "95th percentile scan duration exceeds 10 minutes"
+          description: "Scans are taking longer than expected: {{ $value }}s at p95"
+      
+      # Agent Timeout Issues
+      - alert: AgentSlowResponse
+        expr: histogram_quantile(0.90, rate(agent_duration_seconds_bucket[5m])) > 120
+        for: 5m
+        labels:
+          severity: warning
+          component: "{{ $labels.agent }}"
+        annotations:
+          summary: "Agent {{ $labels.agent }} responding slowly"
+          description: "90th percentile response time: {{ $value }}s"
+      
+      # High Memory Usage (if available)
+      - alert: HighMemoryUsage
+        expr: |
+          (
+            process_resident_memory_bytes / 1024 / 1024 / 1024
+          ) > 4
+        for: 5m
+        labels:
+          severity: warning
+          component: orchestrator
+        annotations:
+          summary: "High memory usage detected"
+          description: "Orchestrator using {{ $value }}GB of memory"
+      
+      # Stage Failures
+      - alert: StageFailureSpike
+        expr: rate(stage_errors_total[5m]) > 2
+        for: 3m
+        labels:
+          severity: warning
+          component: "{{ $labels.stage }}"
+        annotations:
+          summary: "High failure rate in {{ $labels.stage }} stage"
+          description: "Stage {{ $labels.stage }} failing at {{ $value }} errors/second"
+      
+      # HTTP 500 Errors
+      - alert: HighHTTP500Rate
+        expr: |
+          (
+            rate(http_requests_total{status=~"5.."}[5m])
+            /
+            rate(http_requests_total[5m])
+          ) > 0.1
+        for: 3m
+        labels:
+          severity: critical
+          component: api
+        annotations:
+          summary: "High rate of HTTP 500 errors"
+          description: "More than 10% of requests returning 5xx errors"
+      
+      # Worker Queue Backup (if using Celery)
+      - alert: JobQueueBackup
+        expr: |
+          sum(rate(job_queue_pending[5m])) > 50
+        for: 5m
+        labels:
+          severity: warning
+          component: workers
+        annotations:
+          summary: "Job queue backing up"
+          description: "{{ $value }} pending jobs in queue"

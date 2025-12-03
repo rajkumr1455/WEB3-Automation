@@ -1,0 +1,22 @@
+{
+    "etherscan": {
+        "api_key": "test_api_key",
+        "base_url": "https://api.etherscan.io/api",
+        "sample_contract": {
+            "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+            "name": "Dai Stablecoin",
+            "verified": true,
+            "source_code": "contract Dai { ... }",
+            "abi": []
+        }
+    },
+    "bscscan": {
+        "api_key": "test_api_key",
+        "base_url": "https://api.bscscan.com/api",
+        "sample_contract": {
+            "address": "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
+            "name": "BUSD",
+            "verified": true
+        }
+    }
+}

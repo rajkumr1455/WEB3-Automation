@@ -1,0 +1,81 @@
+# LLM Router Configuration
+# Maps task types to appropriate models (local Ollama or cloud Claude)
+
+models:
+  # Local Ollama models (accessed via host.docker.internal:11434)
+  local:
+    deep_reasoning:
+      model: "deepseek-r1:32b-q4_K_M"
+      endpoint: "ollama"
+      description: "Deep reasoning for smart contract analysis and complex triage"
+      max_tokens: 8192
+      temperature: 0.1
+    
+    code_analysis:
+      model: "qwen2.5:14b-instruct-q4_K_M"
+      endpoint: "ollama"
+      description: "Code analysis, recon, Semgrep rule generation"
+      max_tokens: 4096
+      temperature: 0.2
+    
+    fast_triage:
+      model: "mistral:7b-instruct-q4_K_M"
+      endpoint: "ollama"
+      description: "Fast triage, log classification, quick summaries"
+      max_tokens: 2048
+      temperature: 0.3
+    
+    embeddings:
+      model: "nomic-embed-text"
+      endpoint: "ollama"
+      description: "Text embeddings for RAG and vector indexing"
+      dimensions: 768
+
+  # Cloud models (Claude via Anthropic API)
+  cloud:
+    final_reasoning:
+      model: "claude-4.5-sonnet-20250514"
+      endpoint: "anthropic"
+      description: "High-level reasoning, architecture synthesis, final reports"
+      max_tokens: 16384
+      temperature: 0.1
+
+# Task routing rules
+routing:
+  # Smart contract deep analysis
+  - task_pattern: "smart_contract_analysis"
+    model_type: "local"
+    model_key: "deep_reasoning"
+  
+  # Code review and static analysis
+  - task_pattern: "code_review|static_analysis|semgrep_rule"
+    model_type: "local"
+    model_key: "code_analysis"
+  
+  # Quick triage and classification
+  - task_pattern: "triage|classify|summarize"
+    model_type: "local"
+    model_key: "fast_triage"
+  
+  # Embeddings for RAG
+  - task_pattern: "embed|vector"
+    model_type: "local"
+    model_key: "embeddings"
+  
+  # Final reasoning and report synthesis
+  - task_pattern: "final_report|synthesis|architecture"
+    model_type: "cloud"
+    model_key: "final_reasoning"
+
+# Ollama configuration
+ollama:
+  base_url: "http://host.docker.internal:11434"
+  timeout: 300
+  retry_attempts: 3
+  retry_delay: 2
+
+# Claude configuration
+anthropic:
+  timeout: 120
+  retry_attempts: 3
+  retry_delay: 1

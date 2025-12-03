@@ -1,0 +1,101 @@
+rules:
+  - id: solidity-reentrancy
+    patterns:
+      - pattern: |
+          function $FUNC(...) ... {
+            ...
+            $ADDR.call{value: $VALUE}(...)
+            ...
+            $STATE = ...
+            ...
+          }
+    message: "Potential reentrancy vulnerability: state change after external call"
+    severity: ERROR
+    languages: [solidity]
+    metadata:
+      category: security
+      cwe: "CWE-841"
+      owasp: "A1:2021-Broken Access Control"
+
+  - id: solidity-unchecked-call
+    patterns:
+      - pattern: $ADDR.call(...)
+      - pattern-not: |
+          (bool $SUCCESS, ...) = $ADDR.call(...)
+          require($SUCCESS, ...)
+    message: "Unchecked external call return value"
+    severity: WARNING
+    languages: [solidity]
+
+  - id: solidity-tx-origin
+    pattern: tx.origin
+    message: "Use of tx.origin for authorization is dangerous"
+    severity: ERROR
+    languages: [solidity]
+
+  - id: solidity-delegatecall
+    pattern: $ADDR.delegatecall(...)
+    message: "Delegatecall to untrusted contract can be dangerous"
+    severity: WARNING
+    languages: [solidity]
+
+  - id: solidity-selfdestruct
+    pattern: selfdestruct(...)
+    message: "Selfdestruct can be dangerous if not properly protected"
+    severity: WARNING
+    languages: [solidity]
+
+  - id: solidity-unprotected-function
+    patterns:
+      - pattern: |
+          function $FUNC(...) public {
+            ...
+            selfdestruct(...)
+            ...
+          }
+      - pattern-not: |
+          function $FUNC(...) public {
+            ...
+            require(msg.sender == owner, ...)
+            ...
+            selfdestruct(...)
+            ...
+          }
+    message: "Unprotected selfdestruct function"
+    severity: ERROR
+    languages: [solidity]
+
+  - id: solidity-integer-overflow
+    patterns:
+      - pattern: $X + $Y
+      - pattern-not-inside: |
+          pragma solidity ^0.8...
+    message: "Potential integer overflow (use Solidity 0.8+ or SafeMath)"
+    severity: WARNING
+    languages: [solidity]
+
+  - id: solidity-timestamp-dependence
+    pattern: block.timestamp
+    message: "Timestamp dependence can be manipulated by miners"
+    severity: INFO
+    languages: [solidity]
+
+  - id: solidity-weak-randomness
+    patterns:
+      - pattern: |
+          ... = uint(keccak256(abi.encodePacked(block.timestamp, ...))) % ...
+    message: "Weak randomness source - predictable by miners"
+    severity: ERROR
+    languages: [solidity]
+
+  - id: solidity-uninitialized-storage
+    patterns:
+      - pattern: |
+          struct $STRUCT {
+            ...
+          }
+          ...
+          $STRUCT storage $VAR;
+    message: "Uninitialized storage pointer"
+    severity: ERROR
+    languages: [solidity]
