@@ -19,9 +19,20 @@ from prometheus_client import Counter, Histogram, Gauge, generate_latest
 from fastapi.responses import Response
 import asyncio
 
-# Configure logging
+# Configure logging FIRST (before any code that uses logger)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Add path for RPC pool import
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
+
+try:
+    from src.utils.rpc_connection_pool import RPCConnectionPool
+    RPC_POOL_AVAILABLE = True
+except ImportError:
+    logger.warning("RPC pool not available, will use single RPC endpoints")
+    RPC_POOL_AVAILABLE = False
 
 # Prometheus metrics
 SCAN_COUNT = Counter('orchestrator_scans_total', 'Total scans', ['status'])
@@ -57,6 +68,44 @@ AGENT_URLS = {
 
 # In-memory scan storage (use Redis/DB in production)
 scans_db: Dict[str, Dict[str, Any]] = {}
+
+# RPC Connection Pools (PRIORITY 2: Multi-provider failover)
+RPC_POOLS = {}
+
+def initialize_rpc_pools():
+    """Initialize RPC pools for supported chains with failover"""
+    if not RPC_POOL_AVAILABLE:
+        logger.info("RPC pool not available, skipping initialization")
+        return
+    
+    chains_config = {
+        "ethereum": [
+            os.getenv("ETHEREUM_RPC_URL", os.getenv("ETH_RPC_URL")),
+            os.getenv("ETHEREUM_RPC_URL_BACKUP")
+        ],
+        "bsc": [
+            os.getenv("BSC_RPC_URL"),
+            os.getenv("BSC_RPC_URL_BACKUP")
+        ],
+        "polygon": [
+            os.getenv("POLYGON_RPC_URL"),
+            os.getenv("POLYGON_RPC_URL_BACKUP")
+        ]
+    }
+    
+    for chain, providers in chains_config.items():
+        providers = [p for p in providers if p]
+        if providers:
+            try:
+                RPC_POOLS[chain] = RPCConnectionPool(
+                    providers=providers,
+                    health_check_interval=60,
+                    circuit_breaker_threshold=5
+                )
+                logger.info(f"RPC pool configured for {chain} with {len(providers)} providers")
+            except Exception as e:
+                logger.error(f"Failed to create RPC pool for {chain}: {e}")
+
 
 
 class ScanStatus(str, Enum):
@@ -129,9 +178,19 @@ async def run_scan_pipeline(scan_id: str, request: ScanRequest):
             try:
                 address_result = await call_agent("address_scanner", "/scan-address", {
                     "address": request.contract_address,
-                    "chain": request.chain,
-            logger.info(f"[{scan_id}] Stage 4: Dynamic Monitoring")
-            update_scan_status(scan_id, "running", current_stage="monitoring")
+                    "chain": request.chain
+                })
+                save_stage_result(scan_id, "address_scan", 0, address_result)
+                logger.info(f"[{scan_id}] Address scan complete")
+            except Exception as e:
+                logger.error(f"[{scan_id}] Address scan failed: {e}")
+                address_result = {"error": str(e)}
+        
+        # Stage 4: Dynamic Monitoring
+        logger.info(f"[{scan_id}] Stage 4: Dynamic Monitoring")
+        update_scan_status(scan_id, "running", current_stage="monitoring")
+        
+        if request.contract_address:
             monitoring_result = await call_agent("monitoring", "/monitor", {
                 "scan_id": scan_id,
                 "contract_address": request.contract_address,
@@ -409,6 +468,33 @@ async def proxy_scan_address(request: Dict[str, Any]):
     except Exception as e:
         logger.error(f"Failed to scan address: {e}")
         raise HTTPException(status_code=500, detail=f"Address scan failed: {str(e)}")
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize RPC pools on startup"""
+    logger.info("Orchestrator starting up...")
+    initialize_rpc_pools()
+    
+    # Start RPC pool health checks
+    for chain, pool in RPC_POOLS.items():
+        try:
+            await pool.start()
+            logger.info(f"RPC pool started for {chain}")
+        except Exception as e:
+            logger.error(f"Failed to start RPC pool for {chain}: {e}")
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Stop RPC pools on shutdown"""
+    logger.info("Orchestrator shutting down...")
+    for chain, pool in RPC_POOLS.items():
+        try:
+            await pool.stop()
+            logger.info(f"RPC pool stopped for {chain}")
+        except Exception as e:
+            logger.error(f"Error stopping RPC pool for {chain}: {e}")
 
 
 if __name__ == "__main__":

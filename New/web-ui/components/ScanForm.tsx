@@ -49,6 +49,7 @@ export default function ScanForm() {
                     Target Repository URL
                 </label>
                 <input
+                    data-testid="target-url-input"
                     type="url"
                     value={formData.target_url}
                     onChange={(e) => setFormData({ ...formData, target_url: e.target.value })}
@@ -66,6 +67,7 @@ export default function ScanForm() {
                     Contract Address (Optional)
                 </label>
                 <input
+                    data-testid="contract-address-input"
                     type="text"
                     value={formData.contract_address}
                     onChange={(e) => setFormData({ ...formData, contract_address: e.target.value })}
@@ -82,6 +84,7 @@ export default function ScanForm() {
                     Blockchain
                 </label>
                 <select
+                    data-testid="chain-select"
                     value={formData.chain}
                     onChange={(e) => setFormData({ ...formData, chain: e.target.value })}
                     className="input"
@@ -96,6 +99,7 @@ export default function ScanForm() {
             </div>
 
             <button
+                data-testid="launch-scan-button"
                 type="submit"
                 disabled={isPending || !formData.target_url}
                 className="btn-primary w-full flex items-center justify-center space-x-2"

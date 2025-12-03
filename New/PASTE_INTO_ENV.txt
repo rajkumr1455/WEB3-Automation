@@ -1,0 +1,40 @@
+# PASTE THIS INTO YOUR .env FILE AT LINE 75
+# Copy everything between the === markers ===
+
+# ============================================
+# Blockchain RPC Endpoints (with Failover)
+# ============================================
+# Primary RPC endpoints (free public RPCs - no API key needed)
+ETHEREUM_RPC_URL=https://eth.llamarpc.com
+BSC_RPC_URL=https://bsc-dataseed.binance.org/
+POLYGON_RPC_URL=https://polygon-rpc.com/
+ARBITRUM_RPC_URL=https://arb1.arbitrum.io/rpc
+OPTIMISM_RPC_URL=https://mainnet.optimism.io
+BASE_RPC_URL=https://mainnet.base.org
+
+# Backup RPC endpoints (for automatic failover)
+ETHEREUM_RPC_URL_BACKUP=https://ethereum.publicnode.com
+BSC_RPC_URL_BACKUP=https://rpc.ankr.com/bsc
+POLYGON_RPC_URL_BACKUP=https://polygon-mainnet.public.blastapi.io
+ARBITRUM_RPC_URL_BACKUP=https://rpc.ankr.com/arbitrum
+OPTIMISM_RPC_URL_BACKUP=https://rpc.ankr.com/optimism
+BASE_RPC_URL_BACKUP=https://base.publicnode.com
+
+# Legacy environment variable (backward compatibility)
+ETH_RPC_URL=https://eth.llamarpc.com
+
+# ============================================
+# (Continue with rest of your .env file below)
+
+
+# STEPS TO ADD:
+# 1. Position cursor at line 75 in .env (you're already there!)
+# 2. Copy lines between === markers above
+# 3. Paste into .env
+# 4. Save file (Ctrl+S)
+# 5. Run commands below to activate
+
+# After pasting, run these commands:
+cd c:\Users\patel\Desktop\web3_hunter\New
+docker-compose restart monitoring-agent
+curl http://localhost:8005/rpc-status
